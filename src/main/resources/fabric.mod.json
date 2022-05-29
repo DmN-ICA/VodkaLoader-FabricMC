@@ -20,7 +20,13 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "DmN.ICA.vodka.impl.VodkaLoader"
+      "DmN.ICA.vodka.impl.Initializer"
+    ],
+    "client": [
+      "DmN.ICA.vodka.impl.Initializer"
+    ],
+    "server": [
+      "DmN.ICA.vodka.impl.Initializer"
     ]
   },
   "mixins": [

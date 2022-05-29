@@ -1,17 +1,24 @@
 package DmN.ICA.vodka.impl;
 
 import DmN.ICA.vodka.VodkaLoader;
+import net.fabricmc.loader.api.FabricLoader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Set;
 
 public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
     static {
-        VodkaLoader.INSTANCE = new DmN.ICA.vodka.impl.VodkaLoader();
-        VodkaLoader.INSTANCE.firstInit();
+        try {
+            VodkaLoader.INSTANCE = new DmN.ICA.vodka.impl.VodkaLoader(VodkaClassLoader.create(new File(FabricLoader.getInstance().getGameDir().toString() + File.separator + "vodka_mods"), VodkaMixinConfigPlugin.class.getClassLoader()));
+            VodkaLoader.INSTANCE.firstInit();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
