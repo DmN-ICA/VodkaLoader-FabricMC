@@ -1,29 +1,30 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "vodkaloader",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "VodkaLoader",
+  "description": "!",
   "authors": [
-    "Me!"
+    "DmNICA",
+    "DomamaN202"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://github.com/DmN-ICA/VodkaLoader-FabricMC",
+    "sources": "https://github.com/DmN-ICA/VodkaLoader-FabricMC"
   },
 
-  "license": "CC0-1.0",
+  "license": "Apache-2.0",
   "icon": "assets/modid/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.fabricmc.example.ExampleMod"
+      "DmN.ICA.vodka.impl.VodkaLoader"
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "vodkaloader.mixins.json"
   ],
 
   "depends": {
@@ -31,8 +32,5 @@
     "fabric": "*",
     "minecraft": "~1.18.2",
     "java": ">=17"
-  },
-  "suggests": {
-    "another-mod": "*"
   }
 }
