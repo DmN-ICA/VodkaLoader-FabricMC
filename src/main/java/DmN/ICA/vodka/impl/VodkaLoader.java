@@ -12,7 +12,7 @@ public class VodkaLoader extends DmN.ICA.vodka.VodkaLoader implements ModInitial
 
     @Override
     public @NotNull MinecraftVersion getMCVersion() {
-        return new MinecraftVersion.;
+        return new MinecraftVersion.MinecraftVersionImpl("1.18.2");
     }
 
     @Override
