@@ -1,0 +1,4 @@
+[submodule "VodkaApi"]
+	path = VodkaApi
+	url = https://github.com/DmN-ICA/VodkaApi
+	branch = main
