@@ -1,22 +1,29 @@
 package DmN.ICA.vodka.impl;
 
 import DmN.ICA.vodka.VodkaLoader;
+import DmN.ICA.vodka.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Set;
 
 public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
     static {
         try {
-            VodkaLoader.INSTANCE = new DmN.ICA.vodka.impl.VodkaLoader(VodkaClassLoader.create(new File(FabricLoader.getInstance().getGameDir().toString() + File.separator + "vodka_mods"), VodkaMixinConfigPlugin.class.getClassLoader()));
+            ClassLoader parentLoader = VodkaMixinConfigPlugin.class.getClassLoader();
+            VodkaClassLoader loader = VodkaClassLoader.create(new File(FabricLoader.getInstance().getGameDir().toString() + File.separator + "vodka_mods"), parentLoader, EnvType.valueOf(FabricLoader.getInstance().getEnvironmentType().toString()));
+
+            Class<TestClass> clazz = (Class<TestClass>) loader.loadClass("DmN.ICA.vodka.impl.TestClass");
+            clazz.getMethod("foo").invoke(clazz.newInstance());
+
+            Class.forName("DmN.ICA.vodka.VodkaLoader", true, parentLoader);
+            VodkaLoader.INSTANCE = (VodkaLoader) Class.forName("DmN.ICA.vodka.impl.VodkaLoader", true, loader).getConstructors()[0].newInstance(loader);
             VodkaLoader.INSTANCE.firstInit();
-        } catch (MalformedURLException e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }

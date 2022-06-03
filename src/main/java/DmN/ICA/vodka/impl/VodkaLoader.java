@@ -1,5 +1,9 @@
 package DmN.ICA.vodka.impl;
 
+import DmN.ICA.vodka.api.EnvType;
+import DmN.ICA.vodka.api.LoaderType;
+import DmN.ICA.vodka.api.MinecraftVersion;
+import DmN.ICA.vodka.api.VodkaClassLoader;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.NotNull;
 
