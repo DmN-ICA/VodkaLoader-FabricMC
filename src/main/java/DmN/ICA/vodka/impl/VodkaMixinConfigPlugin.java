@@ -2,6 +2,7 @@ package DmN.ICA.vodka.impl;
 
 import DmN.ICA.vodka.VodkaLoader;
 import DmN.ICA.vodka.api.EnvType;
+import DmN.ICA.vodka.impl.util.E;
 import DmN.ICA.vodka.impl.util.ReflectionHelper;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -23,13 +24,17 @@ public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
             VodkaClassLoader loader = VodkaClassLoader.create(new File(FabricLoader.getInstance().getGameDir().toString() + File.separator + "vodka_mods"), parentLoader.getParent(), parentLoader, EnvType.valueOf(FabricLoader.getInstance().getEnvironmentType().toString()));
             ReflectionHelper.theUnsafe.putObject(VodkaClassLoader.class, ReflectionHelper.theUnsafe.staticFieldOffset(VodkaClassLoader.class.getField("INSTANCE")), loader);
 
-            Class.forName("DmN.ICA.vodka.impl.util.E", true, ClassLoader.getSystemClassLoader()).getMethod("e", ClassLoader.class, String.class, boolean.class).invoke(null, parentLoader, "DmN.ICA.vodka.impl.util.E", true);
+            Class<E> clazz2 = (Class<E>) Class.forName("DmN.ICA.vodka.impl.util.E", true, ClassLoader.getSystemClassLoader());
+            clazz2.getField("VodkaClassLoader$INSTANCE").set(null, loader);
+            clazz2.getMethod("cinit", ClassLoader.class).invoke(null, parentLoader);
+
+            clazz2.getMethod("e", String.class, boolean.class).invoke(null, "DmN.ICA.vodka.impl.util.E", true);
 
             CtClass clazz = ClassPool.getDefault().get("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate");
-            clazz.getMethod("getPostMixinClassByteArray", "(Ljava/lang/String;Z)[B").setBody("{ return DmN.ICA.vodka.impl.util.E.e(this.classLoader, $1, $2); }");
+            clazz.getMethod("getPostMixinClassByteArray", "(Ljava/lang/String;Z)[B").setBody("{ return DmN.ICA.vodka.impl.util.E.e($1, $2); }");
 
             CtClass clazz1 = ClassPool.getDefault().get("net.fabricmc.loader.impl.launch.knot.KnotClassLoader");
-            clazz1.getMethod("findLoadedClassFwd", "(Ljava/lang/String;)Ljava/lang/Class;").setBody("{ Class clazz = super.findLoadedClass($1); if (clazz == null) return DmN.ICA.vodka.impl.util.E.e0(this, $1); return clazz; }");
+            clazz1.getMethod("findLoadedClassFwd", "(Ljava/lang/String;)Ljava/lang/Class;").setBody("{ Class clazz = super.findLoadedClass($1); if (clazz == null) return DmN.ICA.vodka.impl.util.E.e0($1); return clazz; }");
 
             ByteBuddyAgent.install().redefineClasses(new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassLoader"), clazz1.toBytecode()), new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate"), clazz.toBytecode()));
 
