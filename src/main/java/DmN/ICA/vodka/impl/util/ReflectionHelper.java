@@ -7,9 +7,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 
 /**
  * Please be good and never touch this outside gudASM.
@@ -18,6 +16,7 @@ import java.util.Arrays;
 public class ReflectionHelper {
     public static final Unsafe theUnsafe = (Unsafe) getUnsafe();
     public static final long AccessibleObject$override = findOverride();
+    public static final long ClassLoader$parent = findParent();
 
     public static final MethodHandles.Lookup IMPL_LOOKUP = forceGetField(
             MethodHandles.Lookup.class,
@@ -64,6 +63,15 @@ public class ReflectionHelper {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static long findParent() {
+        ClassLoader thisLoader = ReflectionHelper.class.getClassLoader();
+        ClassLoader parent = thisLoader.getParent();
+        for (long cookie = 0; cookie < 64; cookie += 4)
+            if (theUnsafe.getObject(thisLoader, cookie) == parent)
+                return cookie;
+        return -1;
     }
 
     public static void forceSetAccessible(AccessibleObject object, boolean accessible) {
