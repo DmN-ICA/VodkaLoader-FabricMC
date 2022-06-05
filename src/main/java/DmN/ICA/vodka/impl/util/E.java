@@ -16,12 +16,12 @@ public class E {
     public static byte[] e(String name, boolean arg1) {
         try {
             // DEBUG |>
-            Class<?> c = (Class<?>) VodkaClassLoader$VodkaFindLoadedClass.invoke(VodkaClassLoader$INSTANCE, name);
-            if (c != null && !c.getName().equals("DmN.ICA.vodka.impl.util.E")) {
-                System.out.println(name + " [ERROR] " + c);
-                new Exception("ёмаё").printStackTrace();
-                System.exit(0);
-            } else System.out.println(name + " [OK] " + c);
+//            Class<?> c = (Class<?>) VodkaClassLoader$VodkaFindLoadedClass.invoke(VodkaClassLoader$INSTANCE, name);
+//            if (c != null && !c.getName().equals("DmN.ICA.vodka.impl.util.E")) {
+//                System.out.println(name + " [ERROR] " + c);
+//                new Exception("ёмаё").printStackTrace();
+//                System.exit(0);
+//            } else System.out.println(name + " [OK] " + c);
             // DEBUG <|
             return (byte[]) VodkaClassLoader$getTransformedBytes.invoke(VodkaClassLoader$INSTANCE, name, arg1);
         } catch (Throwable e) {
@@ -32,7 +32,9 @@ public class E {
     public static Class<?> e0(String name) {
         try {
             Class<?> c = (Class<?>) VodkaClassLoader$VodkaFindLoadedClass.invoke(VodkaClassLoader$INSTANCE, name);
-            System.out.println(name + " [?] " + c);
+            // DEBUG |>
+//            System.out.println(name + " [?] " + c);
+            // DEBUG <|
             return c;
         } catch (Throwable e) {
             throw new RuntimeException(e);
@@ -41,7 +43,11 @@ public class E {
 
     public static URL e1(String name) {
         try {
-            return (URL) VodkaClassLoader$VodkaGetResource.invoke(VodkaClassLoader$INSTANCE, name);
+            URL url = (URL) VodkaClassLoader$VodkaGetResource.invoke(VodkaClassLoader$INSTANCE, name);
+            // DEBUG |>
+//            System.out.println(name + " [R] " + url);
+            // DEBUG <|
+            return url;
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

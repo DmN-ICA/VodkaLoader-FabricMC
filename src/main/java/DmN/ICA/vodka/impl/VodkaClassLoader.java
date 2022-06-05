@@ -21,7 +21,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public static final Class<?> KnotClassDelegate;
     public final EnvType envType;
     public final net.fabricmc.api.EnvType envTypeF;
-    public final ClassLoader systemLoader = ClassLoader.getSystemClassLoader();
+    public final ClassLoader systemLoader = ClassLoader.getPlatformClassLoader();
     public final URLClassLoader urlLoader;
     public final ClassLoader knotLoader;
     public final Object delegate;
@@ -45,8 +45,9 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        if (name.startsWith("java.") || name.startsWith("jdk.") || name.startsWith("net.fabricmc.loader.impl.launch.knot."))
+        if (sysClassCheck(name))
             return Class.forName(name, true, systemLoader);
+
         try {
             Class<?> clazz = VodkaFindLoadedClass(name);
             if (clazz != null)
@@ -100,7 +101,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public static final MethodHandle ClassLoader$findLoadedClass;
 
     public Class<?> VodkaFindLoadedClass(String name) throws ClassNotFoundException {
-        if (name.startsWith("java.") || name.startsWith("jdk."))
+        if (sysClassCheck(name))
             return Class.forName(name, true, systemLoader);
 
         Class<?> clazz = this.findLoadedClass(name);
@@ -120,6 +121,12 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public URL VodkaGetResource(String name) {
         URL resource = urlLoader.getResource(name);
         return resource == null ? this.getResource(name) : resource;
+    }
+
+    public static boolean sysClassCheck(String name) {
+        name = name.split("\\.")[0];
+        int length = name.length();
+        return length < 4 && (name.equals("jdk") || name.equals("sun")) || name.startsWith("java") && length < 6;
     }
 
     static {

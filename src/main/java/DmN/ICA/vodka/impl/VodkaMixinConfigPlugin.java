@@ -39,8 +39,7 @@ public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
 
             ByteBuddyAgent.install().redefineClasses(new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassLoader"), clazz1.toBytecode()), new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate"), clazz.toBytecode()));
 
-            Class<TestClass> clazz0 = (Class<TestClass>) parentLoader.loadClass("DmN.ICA.vodka.impl.TestClass");
-            clazz0.getMethod("foo").invoke(clazz0.newInstance());
+            new TestClass().foo();
 
             VodkaLoader.INSTANCE = new DmN.ICA.vodka.impl.VodkaLoader(loader);
             VodkaLoader.INSTANCE.firstInit();
