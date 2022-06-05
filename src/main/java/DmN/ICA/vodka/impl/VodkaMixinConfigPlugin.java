@@ -31,10 +31,11 @@ public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
             clazz2.getMethod("e", String.class, boolean.class).invoke(null, "DmN.ICA.vodka.impl.util.E", true);
 
             CtClass clazz = ClassPool.getDefault().get("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate");
-            clazz.getMethod("getPostMixinClassByteArray", "(Ljava/lang/String;Z)[B").setBody("{ return DmN.ICA.vodka.impl.util.E.e($1, $2); }");
+            clazz.getMethod("getPostMixinClassByteArray", "(Ljava/lang/String;Z)[B").setBody("{return DmN.ICA.vodka.impl.util.E.e($1, $2);}");
 
-            CtClass clazz1 = ClassPool.getDefault().get("net.fabricmc.loader.impl.launch.knot.KnotClassLoader");
-            clazz1.getMethod("findLoadedClassFwd", "(Ljava/lang/String;)Ljava/lang/Class;").setBody("{ Class clazz = super.findLoadedClass($1); if (clazz == null) return DmN.ICA.vodka.impl.util.E.e0($1); return clazz; }");
+            CtClass clazz1 = ClassPool.getDefault().get("net.fabricmc.loader.impl.launch.knot.KnotClassLoader");//Class clazz = super.findLoadedClass($1); if (clazz == null) return DmN.ICA.vodka.impl.util.E.e0($1); return clazz;
+            clazz1.getMethod("findLoadedClassFwd", "(Ljava/lang/String;)Ljava/lang/Class;").setBody("{return DmN.ICA.vodka.impl.util.E.e0($1);}");
+            clazz1.getMethod("findResourceFwd", "(Ljava/lang/String;)Ljava/net/URL;").setBody("{return DmN.ICA.vodka.impl.util.E.e1($1);}");
 
             ByteBuddyAgent.install().redefineClasses(new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassLoader"), clazz1.toBytecode()), new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate"), clazz.toBytecode()));
 

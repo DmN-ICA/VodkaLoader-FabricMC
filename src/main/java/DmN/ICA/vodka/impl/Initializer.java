@@ -8,16 +8,16 @@ import net.fabricmc.api.ModInitializer;
 public class Initializer implements ModInitializer, ClientModInitializer, DedicatedServerModInitializer {
     @Override
     public void onInitialize() {
-        VodkaLoader.INSTANCE.commonInit();
+//        VodkaLoader.INSTANCE.commonInit();
     }
 
     @Override
     public void onInitializeClient() {
-        VodkaLoader.INSTANCE.clientInit();
+//        VodkaLoader.INSTANCE.clientInit();
     }
 
     @Override
     public void onInitializeServer() {
-        VodkaLoader.INSTANCE.serverInit();
+//        VodkaLoader.INSTANCE.serverInit();
     }
 }

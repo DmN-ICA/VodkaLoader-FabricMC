@@ -2,8 +2,10 @@ package DmN.ICA.vodka.impl;
 
 import DmN.ICA.vodka.api.EnvType;
 import DmN.ICA.vodka.impl.util.ReflectionHelper;
+import net.fabricmc.loader.impl.transformer.FabricTransformer;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 
 import java.io.File;
@@ -18,6 +20,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public static final VodkaClassLoader INSTANCE = null;
     public static final Class<?> KnotClassDelegate;
     public final EnvType envType;
+    public final net.fabricmc.api.EnvType envTypeF;
     public final URLClassLoader urlLoader;
     public final ClassLoader knotLoader;
     public final Object delegate;
@@ -26,10 +29,11 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
         super(urls, parent);
         this.knotLoader = knotLoader;
         this.envType = envType;
+        this.envTypeF = net.fabricmc.api.EnvType.valueOf(envType.toString());
         Class<?> KnotClassLoader = this.knotLoader.getClass();
         this.urlLoader = ReflectionHelper.getField(KnotClassLoader, "urlLoader", this.knotLoader);
         this.delegate = ReflectionHelper.getField(KnotClassLoader, "delegate", this.knotLoader);
-        ReflectionHelper.theUnsafe.putObject(this.knotLoader, ReflectionHelper.ClassLoader$parent, this);
+//        ReflectionHelper.theUnsafe.putObject(this.knotLoader, ReflectionHelper.ClassLoader$parent, this);
     }
 
     public static VodkaClassLoader create(File modsDir, ClassLoader parent, ClassLoader knotLoader, EnvType envType) throws MalformedURLException, NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
@@ -65,7 +69,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public byte[] getBytes(String name, boolean allowFromParents) {
         try {
             byte[] bytes = (byte[]) KnotClassDelegate$getPreMixinClassByteArray.invoke(delegate, name, allowFromParents);
-            if ((boolean) KnotClassDelegate$transformInitialized.get(delegate) || (boolean) KnotClassDelegate$canTransformClass.invoke(name))
+            if (!(boolean) KnotClassDelegate$transformInitialized.get(delegate) || !(boolean) KnotClassDelegate$canTransformClass.invoke(name))
                 return bytes;
             try {
                 return ((IMixinTransformer) KnotClassDelegate$getMixinTransformer.invoke(delegate)).transformClassBytes(name, name, bytes);
@@ -80,9 +84,13 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
         }
     }
 
+    public static VarHandle KnotClassDelegate$isDevelopment;
+
     public byte[] getTransformedBytes(String name, boolean allowFromParents) {
         try {
-            return transform(envType, name, getBytes(name, allowFromParents));
+            return FabricTransformer.transform((boolean) KnotClassDelegate$isDevelopment.get(delegate), envTypeF, name, transform(envType, name, getBytes(name, allowFromParents)));
+//            return transform(envType, name, getBytes(name, allowFromParents));
+//            return getBytes(name, allowFromParents);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -91,16 +99,23 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public static final MethodHandle ClassLoader$findLoadedClass;
 
     public Class<?> VodkaFindLoadedClass(String name) {
-        Class<?> clazz = null;
+        Class<?> clazz = this.findLoadedClass(name);
         try {
             ClassLoader loader = this.knotLoader;
             while (clazz == null && loader != null) {
                 clazz = (Class<?>) ClassLoader$findLoadedClass.invoke(loader, name);
                 loader = loader.getParent();
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
         return clazz;
+    }
+
+    @Nullable
+    public URL VodkaGetResource(String name) {
+        URL resource = urlLoader.getResource(name);
+        return resource == null ? this.getResource(name) : resource;
     }
 
     static {
@@ -110,6 +125,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
             KnotClassDelegate$transformInitialized = ReflectionHelper.IMPL_LOOKUP.unreflectVarHandle(KnotClassDelegate.getDeclaredField("transformInitialized"));
             KnotClassDelegate$canTransformClass = ReflectionHelper.IMPL_LOOKUP.findStatic(KnotClassDelegate, "canTransformClass", MethodType.methodType(boolean.class, String.class));
             KnotClassDelegate$getMixinTransformer = ReflectionHelper.IMPL_LOOKUP.findVirtual(KnotClassDelegate, "getMixinTransformer", MethodType.methodType(IMixinTransformer.class));
+            KnotClassDelegate$isDevelopment = ReflectionHelper.IMPL_LOOKUP.unreflectVarHandle(KnotClassDelegate.getDeclaredField("isDevelopment"));
             ClassLoader$findLoadedClass = ReflectionHelper.IMPL_LOOKUP.findVirtual(ClassLoader.class, "findLoadedClass", MethodType.methodType(Class.class, String.class));
             ClassLoader$loadClass = ReflectionHelper.IMPL_LOOKUP.findVirtual(ClassLoader.class, "loadClass", MethodType.methodType(Class.class, String.class, boolean.class));
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | NoSuchFieldException e) {
