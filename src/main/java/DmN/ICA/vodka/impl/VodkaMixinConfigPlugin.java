@@ -2,12 +2,15 @@ package DmN.ICA.vodka.impl;
 
 import DmN.ICA.vodka.VodkaLoader;
 import DmN.ICA.vodka.api.EnvType;
+import DmN.ICA.vodka.impl.test.TestClass;
 import DmN.ICA.vodka.impl.util.E;
 import DmN.ICA.vodka.impl.util.ReflectionHelper;
 import javassist.ClassPool;
 import javassist.CtClass;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.fabricmc.loader.api.FabricLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -15,13 +18,17 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import java.io.File;
 import java.lang.instrument.ClassDefinition;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
+    public static final Logger LOGGER = LogManager.getLogger("Vodka[Loader/Api][Inject]");
+
     static {
         try {
+            EnvType env = EnvType.valueOf(FabricLoader.getInstance().getEnvironmentType().toString());
             ClassLoader parentLoader = VodkaMixinConfigPlugin.class.getClassLoader();
-            VodkaClassLoader loader = VodkaClassLoader.create(new File(FabricLoader.getInstance().getGameDir().toString() + File.separator + "vodka_mods"), parentLoader.getParent(), parentLoader, EnvType.valueOf(FabricLoader.getInstance().getEnvironmentType().toString()));
+            VodkaClassLoader loader = VodkaClassLoader.create(new File(FabricLoader.getInstance().getGameDir().toString() + File.separator + "vodka_mods"), parentLoader.getParent(), parentLoader, env);
             ReflectionHelper.theUnsafe.putObject(VodkaClassLoader.class, ReflectionHelper.theUnsafe.staticFieldOffset(VodkaClassLoader.class.getField("INSTANCE")), loader);
 
             Class<E> clazz2 = (Class<E>) Class.forName("DmN.ICA.vodka.impl.util.E", true, ClassLoader.getSystemClassLoader());
@@ -39,7 +46,13 @@ public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
 
             ByteBuddyAgent.install().redefineClasses(new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassLoader"), clazz1.toBytecode()), new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate"), clazz.toBytecode()));
 
-            new TestClass().foo();
+            {
+                TestClass test = new TestClass();
+                Random random = new Random();
+                int a = random.nextInt();
+                int b = random.nextInt();
+                LOGGER.info("#" + env + "# " + test.foo(a, b));
+            }
 
             VodkaLoader.INSTANCE = new DmN.ICA.vodka.impl.VodkaLoader(loader);
             VodkaLoader.INSTANCE.firstInit();
