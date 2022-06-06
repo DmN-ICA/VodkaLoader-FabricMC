@@ -91,8 +91,6 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public byte[] getTransformedBytes(String name, boolean allowFromParents) {
         try {
             return FabricTransformer.transform((boolean) KnotClassDelegate$isDevelopment.get(delegate), envTypeF, name, transform(envType, name, getBytes(name, allowFromParents)));
-//            return transform(envType, name, getBytes(name, allowFromParents));
-//            return getBytes(name, allowFromParents);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

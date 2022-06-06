@@ -23,6 +23,12 @@ public class LiteralText implements IText {
         this.style = style == null ? text.getStyle() : style;
     }
 
+    public @NotNull LiteralText withStyle(Style style) {
+        LiteralText text = new LiteralText(this.text, style);
+        text.siblings.addAll(this.siblings);
+        return text;
+    }
+
     @Override
     public @NotNull Style getStyle() {
         return this.style;

@@ -4,7 +4,7 @@ import DmN.ICA.vodka.text.impl.LiteralText;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface IText { /// TODO: add styles
+public interface IText {
     IText EMPTY = new LiteralText("", Style.EMPTY);
 
     @NotNull Style getStyle();
