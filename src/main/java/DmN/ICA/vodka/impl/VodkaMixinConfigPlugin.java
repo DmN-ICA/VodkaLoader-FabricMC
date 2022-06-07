@@ -32,19 +32,55 @@ public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
             ReflectionHelper.theUnsafe.putObject(VodkaClassLoader.class, ReflectionHelper.theUnsafe.staticFieldOffset(VodkaClassLoader.class.getField("INSTANCE")), loader);
 
             Class<E> clazz2 = (Class<E>) Class.forName("DmN.ICA.vodka.impl.util.E", true, ClassLoader.getSystemClassLoader());
-            clazz2.getField("VodkaClassLoader$INSTANCE").set(null, loader);
-            clazz2.getMethod("cinit", ClassLoader.class).invoke(null, parentLoader);
+            clazz2.getField("VodkaClassLoader$transformed").set(null, loader.transformed);
+            clazz2.getMethod("cinit", Object.class, ClassLoader.class).invoke(null, loader, parentLoader);
 
             clazz2.getMethod("e", String.class, boolean.class).invoke(null, "DmN.ICA.vodka.impl.util.E", true);
 
+            loader.transform(env,  "DmN.ICA.vodka.impl.test.TestClass", ClassPool.getDefault().get("DmN.ICA.vodka.impl.test.TestClass").toBytecode());
+
             CtClass clazz = ClassPool.getDefault().get("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate");
             clazz.getMethod("getPostMixinClassByteArray", "(Ljava/lang/String;Z)[B").setBody("{return DmN.ICA.vodka.impl.util.E.e($1, $2);}");
+            clazz.getMethod("getRawClassByteArray", "(Ljava/lang/String;Z)[B").setBody("""
+            {
+            $1 = net.fabricmc.loader.impl.util.LoaderUtil.getClassFileName($1);
+            java.net.URL url = ((net.fabricmc.loader.impl.launch.knot.KnotClassDelegate.ClassLoaderAccess) classLoader).findResourceFwd($1);
+    
+            if (url == null) {
+                if (!$2) return null;
+    
+                url = parentClassLoader.getResource($1);
+    
+                if (!isValidParentUrl(url, $1)) {
+                   //if (LOG_CLASS_LOAD) net.fabricmc.loader.impl.util.log.Log.info(net.fabricmc.loader.impl.util.log.LogCategory.KNOT, "refusing to load class %s at %s from parent class loader", $1, getCodeSource(url, $1));
+    
+                    return null;
+                }
+            }
+    
+            java.io.InputStream inputStream = url.openStream();
+            int a = inputStream.available();
+            java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream(a < 32 ? 32768 : a);
+            byte[] buffer = new byte[8192];
+            int len;
+    
+            while ((len = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, len);
+            }
+    
+            byte[] bytes = outputStream.toByteArray();
+            inputStream.close();
+            return DmN.ICA.vodka.impl.util.E.e2($1, bytes);
+            }""");
 
-            CtClass clazz1 = ClassPool.getDefault().get("net.fabricmc.loader.impl.launch.knot.KnotClassLoader");//Class clazz = super.findLoadedClass($1); if (clazz == null) return DmN.ICA.vodka.impl.util.E.e0($1); return clazz;
+            CtClass clazz1 = ClassPool.getDefault().get("net.fabricmc.loader.impl.launch.knot.KnotClassLoader");
             clazz1.getMethod("findLoadedClassFwd", "(Ljava/lang/String;)Ljava/lang/Class;").setBody("{return DmN.ICA.vodka.impl.util.E.e0($1);}");
             clazz1.getMethod("findResourceFwd", "(Ljava/lang/String;)Ljava/net/URL;").setBody("{return DmN.ICA.vodka.impl.util.E.e1($1);}");
 
-            ByteBuddyAgent.install().redefineClasses(new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassLoader"), clazz1.toBytecode()), new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate"), clazz.toBytecode()));
+            ByteBuddyAgent.install().redefineClasses(
+                    new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassLoader"), clazz1.toBytecode()),
+                    new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate"), clazz.toBytecode())
+            );
 
             {
                 TestClass test = new TestClass();

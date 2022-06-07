@@ -2,7 +2,6 @@ package DmN.ICA.vodka.impl;
 
 import DmN.ICA.vodka.api.EnvType;
 import DmN.ICA.vodka.impl.util.ReflectionHelper;
-import net.fabricmc.loader.impl.transformer.FabricTransformer;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +14,8 @@ import java.lang.invoke.VarHandle;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public static final VodkaClassLoader INSTANCE = null;
@@ -25,6 +26,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public final URLClassLoader urlLoader;
     public final ClassLoader knotLoader;
     public final Object delegate;
+    public final List<String> transformed = new ArrayList<>();
 
     public VodkaClassLoader(URL[] urls, ClassLoader parent, ClassLoader knotLoader, EnvType envType) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
         super(urls, parent);
@@ -52,7 +54,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
             Class<?> clazz = VodkaFindLoadedClass(name);
             if (clazz != null)
                 return clazz;
-            byte[] bytes = this.getTransformedBytes(name, true);
+            byte[] bytes = this.getBytes(name, true);
             return this.defineClass(name, bytes, 0, bytes.length);
         } catch (Exception e) {
             try {
@@ -68,9 +70,13 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public static final MethodHandle KnotClassDelegate$canTransformClass;
     public static final MethodHandle KnotClassDelegate$getMixinTransformer;
 
+    public byte[] getRawBytes(String name, boolean allowFromParents) throws Throwable {
+        return  (byte[]) KnotClassDelegate$getPreMixinClassByteArray.invoke(delegate, name, allowFromParents);
+    }
+
     public byte[] getBytes(String name, boolean allowFromParents) {
         try {
-            byte[] bytes = (byte[]) KnotClassDelegate$getPreMixinClassByteArray.invoke(delegate, name, allowFromParents);
+            byte[] bytes = getRawBytes(name, allowFromParents);
             if (!(boolean) KnotClassDelegate$transformInitialized.get(delegate) || !(boolean) KnotClassDelegate$canTransformClass.invoke(name))
                 return bytes;
             try {
@@ -87,14 +93,6 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     }
 
     public static VarHandle KnotClassDelegate$isDevelopment;
-
-    public byte[] getTransformedBytes(String name, boolean allowFromParents) {
-        try {
-            return FabricTransformer.transform((boolean) KnotClassDelegate$isDevelopment.get(delegate), envTypeF, name, transform(envType, name, getBytes(name, allowFromParents)));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static final MethodHandle ClassLoader$findLoadedClass;
 
