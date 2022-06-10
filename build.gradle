@@ -1,4 +1,5 @@
 plugins {
+	id 'java'
 	id 'fabric-loom' version '0.12-SNAPSHOT'
 	id 'maven-publish'
 }
@@ -11,6 +12,13 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
+	maven {
+		url = uri("https://maven.pkg.github.com/DmN-ICA/VodkaApi")
+		credentials {
+			username = "Domaman202"
+			password = "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"
+		}
+	}
 }
 
 dependencies {
@@ -18,10 +26,10 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	implementation project(":VodkaApi")
 	implementation group: 'net.bytebuddy', name: 'byte-buddy', version: '1.12.10'
 	implementation group: 'net.bytebuddy', name: 'byte-buddy-agent', version: '1.12.10'
 	implementation group: 'org.javassist', name: 'javassist', version: '3.29.0-GA'
+	implementation "dmn.ica:vodka-api:1.0.0"
 }
 
 processResources {
