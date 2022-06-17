@@ -11,18 +11,19 @@ import java.net.URL;
 import java.util.function.Supplier;
 
 public class CacheClassLoader extends VodkaClassLoader {
-    public String cacheDIr;
+    public String cacheDir;
 
-    public CacheClassLoader(URL[] urls, ClassLoader parent, ClassLoader knotLoader, EnvType envType, String cacheDIr) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    public CacheClassLoader(URL[] urls, ClassLoader parent, ClassLoader knotLoader, EnvType envType, String cacheDir) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
         super(urls, parent, knotLoader, envType);
-        var cacheDirF = new File(cacheDIr);
+
+        var cacheDirF = new File(cacheDir);
         if (!cacheDirF.exists())
             cacheDirF.mkdirs();
-        this.cacheDIr = cacheDIr.endsWith(File.separator) ? cacheDIr : cacheDIr + File.separator;
+        this.cacheDir = cacheDir.endsWith(File.separator) ? cacheDir : cacheDir + File.separator;
     }
 
-    public static CacheClassLoader create(File modsDir, ClassLoader parent, ClassLoader knotLoader, EnvType envType, String cacheDIr) throws MalformedURLException, NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
-        return new CacheClassLoader(buildModsDir(modsDir), parent, knotLoader, envType, cacheDIr);
+    public static CacheClassLoader create(File modsDir, ClassLoader parent, ClassLoader knotLoader, EnvType envType, String cacheDir) throws MalformedURLException, NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
+        return new CacheClassLoader(buildModsDir(modsDir), parent, knotLoader, envType, cacheDir);
     }
 
     @Override
@@ -35,7 +36,7 @@ public class CacheClassLoader extends VodkaClassLoader {
     }
 
     public byte[] loadCachedBytes(String name, Supplier<byte[]> e) throws IOException {
-        var file = new File(cacheDIr + name);
+        var file = new File(this.cacheDir + name);
 
         if (file.exists()) {
             try (var stream = new FileInputStream(file)) {

@@ -12,6 +12,7 @@ public class E {
     public static MethodHandle VodkaClassLoader$VodkaFindLoadedClass;
     public static MethodHandle VodkaClassLoader$getBytes;
     public static MethodHandle VodkaClassLoader$VodkaGetResource;
+    public static MethodHandle VodkaClassLoader$VodkaFindResource;
     public static MethodHandle VodkaClassLoader$transform;
 
     public static byte[] e(String name, boolean arg1) {
@@ -32,7 +33,7 @@ public class E {
 
     public static URL e1(String name) {
         try {
-            return (URL) VodkaClassLoader$VodkaGetResource.invoke(name);
+            return (URL) VodkaClassLoader$VodkaFindResource.invoke(name);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
@@ -48,6 +49,14 @@ public class E {
         }
     }
 
+    public static URL e3(String name) {
+        try {
+            return (URL) VodkaClassLoader$VodkaGetResource.invoke(name);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public static void cinit(Object VodkaClassLoader$INSTANCE, ClassLoader loader) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException {
         MethodHandles.Lookup lookup = (MethodHandles.Lookup) loader.loadClass("DmN.ICA.vodka.impl.util.ReflectionHelper").getField("IMPL_LOOKUP").get(null);
@@ -55,6 +64,7 @@ public class E {
         VodkaClassLoader$VodkaFindLoadedClass = lookup.findVirtual(VodkaClassLoader, "VodkaFindLoadedClass", MethodType.methodType(Class.class, String.class)).bindTo(VodkaClassLoader$INSTANCE);
         VodkaClassLoader$getBytes = lookup.findVirtual(VodkaClassLoader, "getBytes", MethodType.methodType(byte[].class, String.class, boolean.class)).bindTo(VodkaClassLoader$INSTANCE);
         VodkaClassLoader$VodkaGetResource = lookup.findVirtual(VodkaClassLoader, "VodkaGetResource", MethodType.methodType(URL.class, String.class)).bindTo(VodkaClassLoader$INSTANCE);
+        VodkaClassLoader$VodkaFindResource = lookup.findVirtual(VodkaClassLoader, "VodkaFindResource", MethodType.methodType(URL.class, String.class)).bindTo(VodkaClassLoader$INSTANCE);
         VodkaClassLoader$transform = MethodHandles.insertArguments(lookup.findVirtual(loader.loadClass("DmN.ICA.vodka.api.VodkaClassLoader"), "transform", MethodType.methodType(byte[].class, loader.loadClass("DmN.ICA.vodka.api.EnvType"),  String.class, byte[].class)).bindTo(VodkaClassLoader$INSTANCE), 0, VodkaClassLoader.getField("envType").get(VodkaClassLoader$INSTANCE));
     }
 }
