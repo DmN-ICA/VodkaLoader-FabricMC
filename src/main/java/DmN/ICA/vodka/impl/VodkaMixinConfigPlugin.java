@@ -2,11 +2,14 @@ package DmN.ICA.vodka.impl;
 
 import DmN.ICA.vodka.VodkaLoader;
 import DmN.ICA.vodka.api.EnvType;
+import DmN.ICA.vodka.impl.loader.CacheClassLoader;
+import DmN.ICA.vodka.impl.loader.VodkaClassLoader;
 import DmN.ICA.vodka.impl.test.TestClass;
 import DmN.ICA.vodka.impl.util.E;
 import DmN.ICA.vodka.impl.util.ReflectionHelper;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtMethod;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.LogManager;
@@ -23,24 +26,28 @@ import java.util.Set;
 
 public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
     public static final Logger LOGGER = LogManager.getLogger("Vodka[Loader/Api][Inject]");
+    public static boolean allowCacheLoader = true;
 
     static {
         try {
             EnvType env = EnvType.valueOf(FabricLoader.getInstance().getEnvironmentType().toString());
             ClassLoader parentLoader = VodkaMixinConfigPlugin.class.getClassLoader();
-            VodkaClassLoader loader = VodkaClassLoader.create(new File(FabricLoader.getInstance().getGameDir().toString() + File.separator + "vodka_mods"), parentLoader.getParent(), parentLoader, env);
-            ReflectionHelper.theUnsafe.putObject(VodkaClassLoader.class, ReflectionHelper.theUnsafe.staticFieldOffset(VodkaClassLoader.class.getField("INSTANCE")), loader);
+            var gameDIr = FabricLoader.getInstance().getGameDir().toString() + File.separator;
+            var mods = new File(gameDIr + "vodka_mods");
+            VodkaClassLoader loader = allowCacheLoader ? CacheClassLoader.create(mods, parentLoader.getParent(), parentLoader, env, gameDIr + "class_cache") : VodkaClassLoader.create(mods, parentLoader.getParent(), parentLoader, env);
 
             Class<E> clazz2 = (Class<E>) Class.forName("DmN.ICA.vodka.impl.util.E", true, ClassLoader.getSystemClassLoader());
-            clazz2.getField("VodkaClassLoader$transformed").set(null, loader.transformed);
             clazz2.getMethod("cinit", Object.class, ClassLoader.class).invoke(null, loader, parentLoader);
 
             clazz2.getMethod("e", String.class, boolean.class).invoke(null, "DmN.ICA.vodka.impl.util.E", true);
 
-            loader.transform(env,  "DmN.ICA.vodka.impl.test.TestClass", ClassPool.getDefault().get("DmN.ICA.vodka.impl.test.TestClass").toBytecode());
+            var pool = ClassPool.getDefault();
 
-            CtClass clazz = ClassPool.getDefault().get("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate");
+            loader.transform(env,  "DmN.ICA.vodka.impl.test.TestClass", pool.get("DmN.ICA.vodka.impl.test.TestClass").toBytecode());
+
+            CtClass clazz = pool.get("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate");
             clazz.getMethod("getPostMixinClassByteArray", "(Ljava/lang/String;Z)[B").setBody("{return DmN.ICA.vodka.impl.util.E.e($1, $2);}");
+            pool.get(E.class.getName()).getMethod("e", "(Ljava/lang/String;Z)[B");
             clazz.getMethod("getRawClassByteArray", "(Ljava/lang/String;Z)[B").setBody("""
             {
             $1 = net.fabricmc.loader.impl.util.LoaderUtil.getClassFileName($1);
@@ -73,7 +80,7 @@ public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
             return DmN.ICA.vodka.impl.util.E.e2($1, bytes);
             }""");
 
-            CtClass clazz1 = ClassPool.getDefault().get("net.fabricmc.loader.impl.launch.knot.KnotClassLoader");
+            CtClass clazz1 = pool.get("net.fabricmc.loader.impl.launch.knot.KnotClassLoader");
             clazz1.getMethod("findLoadedClassFwd", "(Ljava/lang/String;)Ljava/lang/Class;").setBody("{return DmN.ICA.vodka.impl.util.E.e0($1);}");
             clazz1.getMethod("findResourceFwd", "(Ljava/lang/String;)Ljava/net/URL;").setBody("{return DmN.ICA.vodka.impl.util.E.e1($1);}");
 
@@ -82,13 +89,7 @@ public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
                     new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassDelegate"), clazz.toBytecode())
             );
 
-            {
-                TestClass test = new TestClass();
-                Random random = new Random();
-                int a = random.nextInt();
-                int b = random.nextInt();
-                LOGGER.info("#" + env + "# " + test.foo(a, b));
-            }
+            LOGGER.info("#" + env + "# " + new TestClass().foo(5, 3));
 
             VodkaLoader.INSTANCE = new DmN.ICA.vodka.impl.VodkaLoader(loader);
             VodkaLoader.INSTANCE.firstInit();

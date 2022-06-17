@@ -1,5 +1,7 @@
 package DmN.ICA.vodka.server.api;
 
-public interface IMinecraftServer {
+import DmN.ICA.vodka.world.api.IServerWorld;
 
+public interface IMinecraftServer {
+    IServerWorld getWorld();
 }

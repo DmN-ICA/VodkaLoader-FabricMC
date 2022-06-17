@@ -1,4 +1,4 @@
-package DmN.ICA.vodka.impl;
+package DmN.ICA.vodka.impl.loader;
 
 import DmN.ICA.vodka.api.EnvType;
 import DmN.ICA.vodka.impl.util.ReflectionHelper;
@@ -18,11 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
-    public static final VodkaClassLoader INSTANCE = null;
     public static final Class<?> KnotClassDelegate;
     public final EnvType envType;
     public final net.fabricmc.api.EnvType envTypeF;
-    public final ClassLoader systemLoader = ClassLoader.getPlatformClassLoader();
+    public static final ClassLoader systemLoader = ClassLoader.getPlatformClassLoader();
     public final URLClassLoader urlLoader;
     public final ClassLoader knotLoader;
     public final Object delegate;
@@ -123,6 +122,10 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
         name = name.split("\\.")[0];
         int length = name.length();
         return length < 4 && (name.equals("jdk") || name.equals("sun")) || name.startsWith("java") && length < 6;
+    }
+
+    public Class<?> superLoadClass(String name, boolean resolve) throws ClassNotFoundException {
+        return super.loadClass(name, resolve);
     }
 
     static {

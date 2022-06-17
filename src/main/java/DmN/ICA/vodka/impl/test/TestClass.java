@@ -13,6 +13,6 @@ public class TestClass {
     }
 
     public String fooS(int a, int b) {
-        return "|TestClass|> a & b = " + a + " + " + b + " = "  + (a & b);
+        return "|TestClass|> a & b = " + a + " & " + b + " = "  + (a & b);
     }
 }
