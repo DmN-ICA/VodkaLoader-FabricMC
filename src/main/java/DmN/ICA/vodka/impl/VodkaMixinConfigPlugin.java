@@ -6,10 +6,8 @@ import DmN.ICA.vodka.impl.loader.CacheClassLoader;
 import DmN.ICA.vodka.impl.loader.VodkaClassLoader;
 import DmN.ICA.vodka.impl.test.TestClass;
 import DmN.ICA.vodka.impl.util.E;
-import DmN.ICA.vodka.impl.util.ReflectionHelper;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtMethod;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.LogManager;
@@ -21,12 +19,11 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import java.io.File;
 import java.lang.instrument.ClassDefinition;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
     public static final Logger LOGGER = LogManager.getLogger("Vodka[Loader/Api][Inject]");
-    public static boolean allowCacheLoader = true;
+    public static boolean allowCacheLoader = false;
 
     static {
         try {
@@ -34,7 +31,7 @@ public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
             ClassLoader parentLoader = VodkaMixinConfigPlugin.class.getClassLoader();
             var gameDIr = FabricLoader.getInstance().getGameDir().toString() + File.separator;
             var mods = new File(gameDIr + "vodka_mods");
-            VodkaClassLoader loader = allowCacheLoader ? CacheClassLoader.create(mods, parentLoader.getParent(), parentLoader, env, gameDIr + "class_cache") : VodkaClassLoader.create(mods, parentLoader.getParent(), parentLoader, env);
+            VodkaClassLoader loader = allowCacheLoader ? CacheClassLoader.create(mods, VodkaClassLoader.systemLoader, parentLoader, env, gameDIr + "vodka_cache") : VodkaClassLoader.create(mods, VodkaClassLoader.systemLoader, parentLoader, env);
 
             Class<E> clazz2 = (Class<E>) Class.forName("DmN.ICA.vodka.impl.util.E", true, ClassLoader.getSystemClassLoader());
             clazz2.getMethod("cinit", Object.class, ClassLoader.class).invoke(null, loader, parentLoader);
@@ -82,7 +79,9 @@ public class VodkaMixinConfigPlugin implements IMixinConfigPlugin {
 
             CtClass clazz1 = pool.get("net.fabricmc.loader.impl.launch.knot.KnotClassLoader");
             clazz1.getMethod("findLoadedClassFwd", "(Ljava/lang/String;)Ljava/lang/Class;").setBody("{return DmN.ICA.vodka.impl.util.E.e0($1);}");
-            clazz1.getMethod("findResourceFwd", "(Ljava/lang/String;)Ljava/net/URL;").setBody("{return DmN.ICA.vodka.impl.util.E.e1($1);}");
+            clazz1.getMethod("findResourceFwd", "(Ljava/lang/String;)Ljava/net/URL;").setBody("{return DmN.ICA.vodka.impl.util.E.e3($1);}");
+            clazz1.getMethod("getResource", "(Ljava/lang/String;)Ljava/net/URL;").setBody("{return DmN.ICA.vodka.impl.util.E.e1($1);}");
+            clazz1.getMethod("getResourceAsStream", "(Ljava/lang/String;)Ljava/io/InputStream;").setBody("{return DmN.ICA.vodka.impl.util.E.e4($1);}");
 
             ByteBuddyAgent.install().redefineClasses(
                     new ClassDefinition(Class.forName("net.fabricmc.loader.impl.launch.knot.KnotClassLoader"), clazz1.toBytecode()),

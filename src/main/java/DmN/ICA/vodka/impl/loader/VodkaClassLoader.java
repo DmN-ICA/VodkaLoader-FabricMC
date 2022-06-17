@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.VarHandle;
@@ -18,24 +19,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
+    public static final ClassLoader systemLoader = ClassLoader.getPlatformClassLoader();
     public static final Class<?> KnotClassDelegate;
     public final EnvType envType;
     public final net.fabricmc.api.EnvType envTypeF;
-    public static final ClassLoader systemLoader = ClassLoader.getPlatformClassLoader();
     public final URLClassLoader urlLoader;
     public final ClassLoader knotLoader;
     public final Object delegate;
-    public final List<String> transformed = new ArrayList<>();
 
     public VodkaClassLoader(URL[] urls, ClassLoader parent, ClassLoader knotLoader, EnvType envType) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-        super(urls, parent);
+        super(urls, systemLoader);
         this.knotLoader = knotLoader;
         this.envType = envType;
         this.envTypeF = net.fabricmc.api.EnvType.valueOf(envType.toString());
         Class<?> KnotClassLoader = this.knotLoader.getClass();
         this.urlLoader = ReflectionHelper.getField(KnotClassLoader, "urlLoader", this.knotLoader);
         this.delegate = ReflectionHelper.getField(KnotClassLoader, "delegate", this.knotLoader);
-//        ReflectionHelper.theUnsafe.putObject(this.knotLoader, ReflectionHelper.ClassLoader$parent, this);
     }
 
     public static VodkaClassLoader create(File modsDir, ClassLoader parent, ClassLoader knotLoader, EnvType envType) throws MalformedURLException, NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
@@ -116,6 +115,18 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public URL VodkaGetResource(String name) {
         URL resource = urlLoader.getResource(name);
         return resource == null ? this.getResource(name) : resource;
+    }
+
+    @Nullable
+    public InputStream VodkaGetResourceAsStream(String name) {
+        var resource = urlLoader.getResourceAsStream(name);
+        return resource == null ? this.getResourceAsStream(name) : resource;
+    }
+
+    @Nullable
+    public URL VodkaFindResource(String name) {
+        URL resource = urlLoader.findResource(name);
+        return resource == null ? this.findResource(name) : resource;
     }
 
     public static boolean sysClassCheck(String name) {
