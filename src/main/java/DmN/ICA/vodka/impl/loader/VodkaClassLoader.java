@@ -26,7 +26,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public final ClassLoader knotLoader;
     public final Object delegate;
 
-    public VodkaClassLoader(URL[] urls, ClassLoader parent, ClassLoader knotLoader, EnvType envType) throws NoSuchFieldException, IllegalAccessException {
+    public VodkaClassLoader(URL[] urls, ClassLoader parent, ClassLoader knotLoader, EnvType envType) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
         super(urls, parent);
         this.knotLoader = knotLoader;
         this.envType = envType;
@@ -34,6 +34,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
         Class<?> KnotClassLoader = this.knotLoader.getClass();
         this.urlLoader = ReflectionHelper.getField(KnotClassLoader, "urlLoader", this.knotLoader);
         this.delegate = ReflectionHelper.getField(KnotClassLoader, "delegate", this.knotLoader);
+//        ReflectionHelper.theUnsafe.putObject(this.knotLoader, ReflectionHelper.ClassLoader$parent, this);
     }
 
     public static VodkaClassLoader create(File modsDir, ClassLoader parent, ClassLoader knotLoader, EnvType envType) throws MalformedURLException, NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
