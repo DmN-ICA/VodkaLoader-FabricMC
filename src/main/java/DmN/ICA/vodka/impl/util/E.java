@@ -6,7 +6,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.net.URL;
-import java.util.List;
 
 public class E {
     public static MethodHandle VodkaClassLoader$VodkaFindLoadedClass;
@@ -59,8 +58,8 @@ public class E {
 
     @SuppressWarnings("unchecked")
     public static void cinit(Object VodkaClassLoader$INSTANCE, ClassLoader loader) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException {
-        MethodHandles.Lookup lookup = (MethodHandles.Lookup) loader.loadClass("DmN.ICA.vodka.impl.util.ReflectionHelper").getField("IMPL_LOOKUP").get(null);
-        Class<VodkaClassLoader> VodkaClassLoader = (Class<DmN.ICA.vodka.impl.loader.VodkaClassLoader>) loader.loadClass("DmN.ICA.vodka.impl.loader.VodkaClassLoader");
+        var lookup = (MethodHandles.Lookup) loader.loadClass("DmN.ICA.vodka.impl.util.ReflectionHelper").getField("IMPL_LOOKUP").get(null);
+        var VodkaClassLoader = (Class<DmN.ICA.vodka.impl.loader.VodkaClassLoader>) loader.loadClass("DmN.ICA.vodka.impl.loader.VodkaClassLoader");
         VodkaClassLoader$VodkaFindLoadedClass = lookup.findVirtual(VodkaClassLoader, "VodkaFindLoadedClass", MethodType.methodType(Class.class, String.class)).bindTo(VodkaClassLoader$INSTANCE);
         VodkaClassLoader$getBytes = lookup.findVirtual(VodkaClassLoader, "getBytes", MethodType.methodType(byte[].class, String.class, boolean.class)).bindTo(VodkaClassLoader$INSTANCE);
         VodkaClassLoader$VodkaGetResource = lookup.findVirtual(VodkaClassLoader, "VodkaGetResource", MethodType.methodType(URL.class, String.class)).bindTo(VodkaClassLoader$INSTANCE);
