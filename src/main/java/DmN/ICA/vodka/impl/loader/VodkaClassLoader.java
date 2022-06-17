@@ -25,6 +25,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public final URLClassLoader urlLoader;
     public final ClassLoader knotLoader;
     public final Object delegate;
+    public final List<String> transformed = new ArrayList<>();
 
     public VodkaClassLoader(URL[] urls, ClassLoader parent, ClassLoader knotLoader, EnvType envType) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
         super(urls, parent);
@@ -115,12 +116,6 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
     public URL VodkaGetResource(String name) {
         URL resource = urlLoader.getResource(name);
         return resource == null ? this.getResource(name) : resource;
-    }
-
-    @Nullable
-    public URL VodkaFindResource(String name) {
-        URL resource = urlLoader.findResource(name);
-        return resource == null ? this.findResource(name) : resource;
     }
 
     public static boolean sysClassCheck(String name) {
