@@ -32,7 +32,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
         this.knotLoader = knotLoader;
         this.envType = envType;
         this.envTypeF = net.fabricmc.api.EnvType.valueOf(envType.toString());
-        Class<?> KnotClassLoader = this.knotLoader.getClass();
+        var KnotClassLoader = this.knotLoader.getClass();
         this.urlLoader = ReflectionHelper.getField(KnotClassLoader, "urlLoader", this.knotLoader);
         this.delegate = ReflectionHelper.getField(KnotClassLoader, "delegate", this.knotLoader);
     }
@@ -49,10 +49,10 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
             return Class.forName(name, true, systemLoader);
 
         try {
-            Class<?> clazz = VodkaFindLoadedClass(name);
+            var clazz = VodkaFindLoadedClass(name);
             if (clazz != null)
                 return clazz;
-            byte[] bytes = this.getBytes(name, true);
+            var bytes = this.getBytes(name, true);
             return this.defineClass(name, bytes, 0, bytes.length);
         } catch (Exception e) {
             try {
@@ -74,13 +74,13 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
 
     public byte[] getBytes(String name, boolean allowFromParents) {
         try {
-            byte[] bytes = getRawBytes(name, allowFromParents);
+            var bytes = getRawBytes(name, allowFromParents);
             if (!(boolean) KnotClassDelegate$transformInitialized.get(delegate) || !(boolean) KnotClassDelegate$canTransformClass.invoke(name))
                 return bytes;
             try {
                 return ((IMixinTransformer) KnotClassDelegate$getMixinTransformer.invoke(delegate)).transformClassBytes(name, name, bytes);
             } catch (Throwable t) {
-                String msg = String.format("Mixin transformation of %s failed", name);
+                var msg = String.format("Mixin transformation of %s failed", name);
                 Log.warn(LogCategory.KNOT, msg, t);
 
                 throw new RuntimeException(msg, t);
@@ -98,9 +98,9 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
         if (sysClassCheck(name))
             return Class.forName(name, true, systemLoader);
 
-        Class<?> clazz = this.findLoadedClass(name);
+        var clazz = this.findLoadedClass(name);
         try {
-            ClassLoader loader = this.knotLoader;
+            var loader = this.knotLoader;
             while (clazz == null && loader != null) {
                 clazz = (Class<?>) ClassLoader$findLoadedClass.invoke(loader, name);
                 loader = loader.getParent();
@@ -113,7 +113,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
 
     @Nullable
     public URL VodkaGetResource(String name) {
-        URL resource = urlLoader.getResource(name);
+        var resource = urlLoader.getResource(name);
         return resource == null ? this.getResource(name) : resource;
     }
 
@@ -125,7 +125,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
 
     @Nullable
     public URL VodkaFindResource(String name) {
-        URL resource = urlLoader.findResource(name);
+        var resource = urlLoader.findResource(name);
         return resource == null ? this.findResource(name) : resource;
     }
 

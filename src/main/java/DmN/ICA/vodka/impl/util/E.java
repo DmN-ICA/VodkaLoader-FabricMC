@@ -7,7 +7,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.net.URL;
-import java.util.List;
 
 public class E {
     public static MethodHandle VodkaClassLoader$VodkaFindLoadedClass;

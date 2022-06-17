@@ -39,7 +39,7 @@ public class CacheClassLoader extends VodkaClassLoader {
 
         if (file.exists()) {
             try (var stream = new FileInputStream(file)) {
-                byte[] bytes = stream.readAllBytes();
+                var bytes = stream.readAllBytes();
                 if (bytes.length == 0)
                     return null;
                 return bytes;
