@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 public class CacheClassLoader extends VodkaClassLoader {
     public String cacheDir;
 
-    public CacheClassLoader(URL[] urls, ClassLoader parent, ClassLoader knotLoader, EnvType envType, String cacheDir) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    public CacheClassLoader(URL[] urls, ClassLoader parent, ClassLoader knotLoader, EnvType envType, String cacheDir) throws NoSuchFieldException, IllegalAccessException {
         super(urls, parent, knotLoader, envType);
 
         var cacheDirF = new File(cacheDir);
@@ -22,7 +22,7 @@ public class CacheClassLoader extends VodkaClassLoader {
         this.cacheDir = cacheDir.endsWith(File.separator) ? cacheDir : cacheDir + File.separator;
     }
 
-    public static CacheClassLoader create(File modsDir, ClassLoader parent, ClassLoader knotLoader, EnvType envType, String cacheDir) throws MalformedURLException, NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
+    public static CacheClassLoader create(File modsDir, ClassLoader parent, ClassLoader knotLoader, EnvType envType, String cacheDir) throws MalformedURLException, NoSuchFieldException, IllegalAccessException {
         return new CacheClassLoader(buildModsDir(modsDir), parent, knotLoader, envType, cacheDir);
     }
 
