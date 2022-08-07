@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
@@ -16,7 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
+public class VodkaClassLoader extends DmN.ICA.vodka.classloader.VodkaClassLoader {
     public static final ClassLoader systemLoader = ClassLoader.getPlatformClassLoader();
     public static final Class<?> KnotClassDelegate;
     public final EnvType envType;
@@ -36,7 +37,7 @@ public class VodkaClassLoader extends DmN.ICA.vodka.api.VodkaClassLoader {
         this.ClassLoader$loadClass = ReflectionHelper.findVirtual(ClassLoader.class, this.urlLoader, "loadClass", MethodType.methodType(Class.class, String.class, boolean.class));
     }
 
-    public static VodkaClassLoader create(File modsDir, ClassLoader parent, ClassLoader knotLoader, EnvType envType) throws MalformedURLException, ReflectiveOperationException {
+    public static VodkaClassLoader create(File modsDir, ClassLoader parent, ClassLoader knotLoader, EnvType envType) throws IOException, ReflectiveOperationException {
         return new VodkaClassLoader(buildModsDir(modsDir), parent, knotLoader, envType);
     }
 

@@ -21,7 +21,7 @@ public class CacheClassLoader extends VodkaClassLoader {
         this.cacheDIr = cacheDIr.endsWith(File.separator) ? cacheDIr : cacheDIr + File.separator;
     }
 
-    public static CacheClassLoader create(File modsDir, ClassLoader parent, ClassLoader knotLoader, EnvType envType, String cacheDIr) throws MalformedURLException, ReflectiveOperationException {
+    public static CacheClassLoader create(File modsDir, ClassLoader parent, ClassLoader knotLoader, EnvType envType, String cacheDIr) throws IOException, ReflectiveOperationException {
         return new CacheClassLoader(buildModsDir(modsDir), parent, knotLoader, envType, cacheDIr);
     }
 

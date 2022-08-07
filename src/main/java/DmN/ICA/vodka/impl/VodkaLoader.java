@@ -3,7 +3,7 @@ package DmN.ICA.vodka.impl;
 import DmN.ICA.vodka.api.EnvType;
 import DmN.ICA.vodka.api.LoaderType;
 import DmN.ICA.vodka.api.MinecraftVersion;
-import DmN.ICA.vodka.api.VodkaClassLoader;
+import DmN.ICA.vodka.classloader.VodkaClassLoader;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +17,7 @@ public class VodkaLoader extends DmN.ICA.vodka.VodkaLoader {
 
     @Override
     public @NotNull MinecraftVersion getMCVersion() {
-        return new MinecraftVersion("1.18.2");
+        return new MinecraftVersion("1.19.2");
     }
 
     @Override

@@ -73,7 +73,7 @@ public class E {
         VodkaClassLoader$VodkaFindLoadedClass = lookup.findVirtual(VodkaClassLoader, "VodkaFindLoadedClass", MethodType.methodType(Class.class, String.class)).bindTo(VodkaClassLoader$INSTANCE);
         VodkaClassLoader$getBytes = lookup.findVirtual(VodkaClassLoader, "getBytes", MethodType.methodType(byte[].class, String.class, boolean.class)).bindTo(VodkaClassLoader$INSTANCE);
         VodkaClassLoader$VodkaGetResource = lookup.findVirtual(VodkaClassLoader, "VodkaGetResource", MethodType.methodType(URL.class, String.class)).bindTo(VodkaClassLoader$INSTANCE);
-        VodkaClassLoader$transform = MethodHandles.insertArguments(lookup.findVirtual(loader.loadClass("DmN.ICA.vodka.api.VodkaClassLoader"), "transform", MethodType.methodType(byte[].class, loader.loadClass("DmN.ICA.vodka.api.EnvType"),  String.class, byte[].class)).bindTo(VodkaClassLoader$INSTANCE), 0, VodkaClassLoader.getField("envType").get(VodkaClassLoader$INSTANCE));
+        VodkaClassLoader$transform = MethodHandles.insertArguments(lookup.findVirtual(loader.loadClass("DmN.ICA.vodka.classloader.VodkaClassLoader"), "transform", MethodType.methodType(byte[].class, loader.loadClass("DmN.ICA.vodka.api.EnvType"),  String.class, byte[].class)).bindTo(VodkaClassLoader$INSTANCE), 0, VodkaClassLoader.getField("envType").get(VodkaClassLoader$INSTANCE));
         VodkaClassLoader$VodkaFindResource = lookup.findVirtual(VodkaClassLoader, "VodkaFindResource", MethodType.methodType(URL.class, String.class)).bindTo(VodkaClassLoader$INSTANCE);
         VodkaClassLoader$VodkaGetResourceAsStream = lookup.findVirtual(VodkaClassLoader, "VodkaGetResourceAsStream", MethodType.methodType(InputStream.class, String.class)).bindTo(VodkaClassLoader$INSTANCE);
     }
